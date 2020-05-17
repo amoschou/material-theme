@@ -5,7 +5,8 @@ This project follows the principals outlined in the Theming Guide for MDC Web (h
 
 The intention is that after defining the theme colours for a theme, components may be wrapped in a theme class and styles will be applied appropriately:
 
-```<div class="theme-alpha">
+```
+<div class="theme-alpha">
   <div class="mdc-component">
     This component is styled using Theme Alpha’s colours.
   </div>
@@ -21,6 +22,7 @@ The intention is that after defining the theme colours for a theme, components m
   <div class="mdc-component">
     This component is styled using Theme Gamma’s colours.
   </div>
-</div>```
+</div>
+```
 
 
