@@ -1,0 +1,247 @@
+@use "sass:color";
+@use "sass:map";
+@use "@material/theme/color-palette" as cp;
+$mdc-theme-primary: cp.$cyan-500;
+$mdc-theme-secondary: cp.$deep-orange-a200;
+$mdc-theme-background: cp.$yellow-200;
+$mdc-theme-surface: cp.$blue-grey-200;
+$mdc-theme-error: #b00020;
+$mdc-theme-alpha-primary: cp.$red-300;
+$mdc-theme-alpha-secondary: cp.$yellow-a400;
+$mdc-theme-alpha-background: cp.$pink-900;
+$mdc-theme-alpha-surface: cp.$red-50;
+$mdc-theme-alpha-error: $mdc-theme-error;
+$mdc-theme-beta-primary: cp.$purple-500;
+$mdc-theme-beta-secondary: cp.$deep-purple-a200;
+$mdc-theme-beta-background: cp.$deep-purple-900;
+$mdc-theme-beta-surface: cp.$purple-700;
+$mdc-theme-beta-error: $mdc-theme-error;
+$mdc-theme-gamma-primary: cp.$indigo-500;
+$mdc-theme-gamma-secondary: cp.$blue-a200;
+$mdc-theme-gamma-background: cp.$brown-900;
+$mdc-theme-gamma-surface: cp.$indigo-50;
+$mdc-theme-gamma-error: $mdc-theme-error;
+@use "@material/theme/variables" as theme-variables with (
+  $primary: $mdc-theme-primary,
+  $secondary: $mdc-theme-secondary,
+  $background: $mdc-theme-background,
+  $surface: $mdc-theme-surface,
+  $error: $mdc-theme-error
+);
+@use "@material/button";
+@use "@material/card";
+@use "@material/checkbox";
+@use "@material/feature-targeting/functions" as feature-targeting-functions;
+@use "@material/feature-targeting/mixins" as feature-targeting-mixins;
+@use "@material/form-field/mdc-form-field";
+@use "@material/icon-button";
+@use "@material/theme/mixins" as theme-mixins;
+@use "@material/theme/functions" as theme-functions;
+@use "@material/theme/constants" as theme-constants;
+@use "@material/typography/mdc-typography";
+
+@include button.core-styles;
+@include button.theme-baseline;
+@include card.core-styles;
+@include icon-button.core-styles;
+@include checkbox.core-styles;
+
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+
+@mixin common-theme-styles($property-values) {
+
+  $primary: map.get($property-values, "primary");
+  $secondary: map.get($property-values, "secondary");
+  $surface: map.get($property-values, "surface");
+  $on-secondary: map.get($property-values, "on-secondary");
+  $on-surface: map.get($property-values, "on-surface");
+
+  // BUTTONS
+  .mdc-button--raised,
+  .mdc-button--unelevated {
+    // Relevant variables (colours) from @material/button/variables are:
+    //   $outline-color: rgba(ON-SURFACE, .12)
+    //   $disabled-container-color: rgba(ON-SURFACE, .12)
+    //   $disabled-ink-color: rgba(ON-SURFACE, .38)
+    @include button.filled-accessible($primary);
+//    filled_() does this:
+    // This includes: container-fill-color(PRIMARY) YES
+    //                ink-color(ON-PRIMARY) YES
+    //                disabled-container-fill-color($disabled-container-color)
+    //                disabled-ink-color($disabled-ink-color)
+    //
+    //
+    //
+  }
+
+  // CARDS
+  //   @mixin fill-color($color): Managed by CSS variables --
+  //   @mixin outline($color, $thickness): Requires Sass
+  // OUTLINE COLOUR SHOULD BE A MIX OF 12% ON-SURFACE 88% SURFACE
+  .mdc-card--outlined {
+    $outline-color: color.mix($on-surface, $surface, 12%);
+    @include card.outline($outline-color);
+  }
+
+  .mdc-icon-button {
+  }
+
+  .mdc-checkbox {
+    // Variables from @material/checkbox/variables
+    $baseline-theme-color: $secondary;
+    $mark-color: $on-secondary;
+    $border-color: rgba($on-surface, .54);
+    $disabled-color: rgba($on-surface, .38);
+
+    @include checkbox.container-colors(
+      $border-color,
+      transparent,
+      $baseline-theme-color,
+      $baseline-theme-color,
+      true
+    );
+    @include checkbox.disabled-container-colors(
+      $disabled-color,
+      transparent,
+      transparent,
+      $disabled-color
+    );
+    @include checkbox.ink-color($mark-color);
+    @include checkbox.disabled-ink-color($mark-color);
+    // @include checkbox.focus-indicator-color(); Which value for this?
+  }
+};
+
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+
+// Modified from @material/theme/_mixins.scss
+@mixin themed-core-styles($property-values, $query: feature-targeting-functions.all()) {
+  $feat-color: feature-targeting-functions.create-target($query, color);
+
+  @include feature-targeting-mixins.targets($feat-color) {
+    @each $style in map.keys($property-values) {
+      --mdc-theme-#{$style}: #{map.get($property-values, $style)};
+    }
+  }
+
+  @each $style in map.keys($property-values) {
+    @if $style != "background" and $style != "surface" {
+      .mdc-theme--#{$style} {
+        @include feature-targeting-mixins.targets($feat-color) {
+          @include theme-mixins.prop(color, $style, true);
+        }
+      }
+    } @else {
+      .mdc-theme--#{$style} {
+        @include feature-targeting-mixins.targets($feat-color) {
+          @include theme-mixins.prop(background-color, $style);
+        }
+      }
+    }
+  }
+
+  // CSS rules for using primary and secondary (plus light/dark variants) as background colors.
+  @each $style in ("primary", "secondary") {
+    .mdc-theme--#{$style}-bg {
+      @include feature-targeting-mixins.targets($feat-color) {
+        @include theme-mixins.prop(background-color, $style, true);
+      }
+    }
+  }
+}
+
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+
+@mixin common-theme-work($primary, $secondary, $error: #800020, $background: #fff, $surface: #fff) {
+  $on-primary: if(theme-functions.contrast-tone($primary) == "dark", #000, #fff);
+  $on-secondary: if(theme-functions.contrast-tone($secondary) == "dark", #000, #fff);
+  $on-surface: if(theme-functions.contrast-tone($surface) == "dark", #000, #fff);
+  $on-error: if(theme-functions.contrast-tone($error) == "dark", #000, #fff) !default;
+
+  $property-values: (
+    primary: $primary,
+    secondary: $secondary,
+    background: $background,
+    surface: $surface,
+    error: $error,
+    on-primary: $on-primary,
+    on-secondary: $on-secondary,
+    on-surface: $on-surface,
+    on-error: $on-error,
+    text-primary-on-background: ink-color-for-fill_(primary, $background),
+    text-secondary-on-background: ink-color-for-fill_(secondary, $background),
+    text-hint-on-background: ink-color-for-fill_(hint, $background),
+    text-disabled-on-background: ink-color-for-fill_(disabled, $background),
+    text-icon-on-background: ink-color-for-fill_(icon, $background),
+    text-primary-on-light: ink-color-for-fill_(primary, light),
+    text-secondary-on-light: ink-color-for-fill_(secondary, light),
+    text-hint-on-light: ink-color-for-fill_(hint, light),
+    text-disabled-on-light: ink-color-for-fill_(disabled, light),
+    text-icon-on-light: ink-color-for-fill_(icon, light),
+    text-primary-on-dark: ink-color-for-fill_(primary, dark),
+    text-secondary-on-dark: ink-color-for-fill_(secondary, dark),
+    text-hint-on-dark: ink-color-for-fill_(hint, dark),
+    text-disabled-on-dark: ink-color-for-fill_(disabled, dark),
+    text-icon-on-dark: ink-color-for-fill_(icon, dark)
+  );
+
+  @include themed-core-styles($property-values);
+  @include common-theme-styles($property-values);
+}
+
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+
+@include theme-mixins.core-styles;
+@include common-theme-styles(theme-variables.$property-values);
+
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+
+.theme-alpha {
+  @include common-theme-work(
+    $mdc-theme-alpha-primary,
+    $mdc-theme-alpha-secondary,
+    $mdc-theme-alpha-error,
+    $mdc-theme-alpha-background,
+    $mdc-theme-alpha-surface
+  );
+}
+
+.theme-beta {
+  @include common-theme-work(
+    $mdc-theme-beta-primary,
+    $mdc-theme-beta-secondary,
+    $mdc-theme-beta-error,
+    $mdc-theme-beta-background,
+    $mdc-theme-beta-surface
+  );
+}
+
+.theme-gamma {
+  @include common-theme-work(
+    $mdc-theme-gamma-primary,
+    $mdc-theme-gamma-secondary,
+    $mdc-theme-gamma-error,
+    $mdc-theme-gamma-background,
+    $mdc-theme-gamma-surface
+  );
+}
+
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
