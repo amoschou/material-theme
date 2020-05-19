@@ -1,32 +1,32 @@
 @use "sass:color";
 @use "sass:map";
 @use "@material/theme/color-palette" as cp;
-$mdc-theme-primary: cp.$cyan-500;
-$mdc-theme-secondary: cp.$deep-orange-a200;
-$mdc-theme-background: cp.$yellow-200;
-$mdc-theme-surface: cp.$blue-grey-200;
-$mdc-theme-error: #b00020;
-$mdc-theme-alpha-primary: cp.$red-300;
-$mdc-theme-alpha-secondary: cp.$yellow-a400;
-$mdc-theme-alpha-background: cp.$pink-900;
-$mdc-theme-alpha-surface: cp.$red-50;
-$mdc-theme-alpha-error: $mdc-theme-error;
-$mdc-theme-beta-primary: cp.$purple-500;
-$mdc-theme-beta-secondary: cp.$deep-purple-a200;
-$mdc-theme-beta-background: cp.$deep-purple-900;
-$mdc-theme-beta-surface: cp.$purple-700;
-$mdc-theme-beta-error: $mdc-theme-error;
-$mdc-theme-gamma-primary: cp.$indigo-500;
-$mdc-theme-gamma-secondary: cp.$blue-a200;
-$mdc-theme-gamma-background: cp.$brown-900;
-$mdc-theme-gamma-surface: cp.$indigo-50;
-$mdc-theme-gamma-error: $mdc-theme-error;
+$theme-primary: cp.$cyan-500;
+$theme-secondary: cp.$deep-orange-a200;
+$theme-background: cp.$yellow-200;
+$theme-surface: cp.$blue-grey-200;
+$theme-error: #b00020;
+$theme-alpha-primary: cp.$red-300;
+$theme-alpha-secondary: cp.$yellow-a400;
+$theme-alpha-background: cp.$pink-900;
+$theme-alpha-surface: cp.$red-50;
+$theme-alpha-error: $mdc-theme-error;
+$theme-beta-primary: cp.$purple-500;
+$theme-beta-secondary: cp.$deep-purple-a200;
+$theme-beta-background: cp.$deep-purple-900;
+$theme-beta-surface: cp.$purple-700;
+$theme-beta-error: $mdc-theme-error;
+$theme-gamma-primary: cp.$indigo-500;
+$theme-gamma-secondary: cp.$blue-a200;
+$theme-gamma-background: cp.$brown-900;
+$theme-gamma-surface: cp.$indigo-50;
+$theme-gamma-error: $mdc-theme-error;
 @use "@material/theme/variables" as theme-variables with (
-  $primary: $mdc-theme-primary,
-  $secondary: $mdc-theme-secondary,
-  $background: $mdc-theme-background,
-  $surface: $mdc-theme-surface,
-  $error: $mdc-theme-error
+  $primary: $theme-primary,
+  $secondary: $theme-secondary,
+  $background: $theme-background,
+  $surface: $theme-surface,
+  $error: $theme-error
 );
 @use "@material/button";
 @use "@material/card";
@@ -239,7 +239,7 @@ $mdc-theme-gamma-error: $mdc-theme-error;
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-@mixin common-theme-work($primary, $secondary, $error: #800020, $background: #fff, $surface: #fff) {
+@mixin make-theme($primary, $secondary, $error: #800020, $background: #fff, $surface: #fff) {
   $on-primary: if(theme-functions.contrast-tone($primary) == "dark", #000, #fff);
   $on-secondary: if(theme-functions.contrast-tone($secondary) == "dark", #000, #fff);
   $on-surface: if(theme-functions.contrast-tone($surface) == "dark", #000, #fff);
@@ -290,32 +290,32 @@ $mdc-theme-gamma-error: $mdc-theme-error;
 ////////////////////////////////////////////////////////////////////////////////
 
 .theme-alpha {
-  @include common-theme-work(
-    $mdc-theme-alpha-primary,
-    $mdc-theme-alpha-secondary,
-    $mdc-theme-alpha-error,
-    $mdc-theme-alpha-background,
-    $mdc-theme-alpha-surface
+  @include make-theme(
+    $theme-alpha-primary,
+    $theme-alpha-secondary,
+    $theme-alpha-error,
+    $theme-alpha-background,
+    $theme-alpha-surface
   );
 }
 
 .theme-beta {
-  @include common-theme-work(
-    $mdc-theme-beta-primary,
-    $mdc-theme-beta-secondary,
-    $mdc-theme-beta-error,
-    $mdc-theme-beta-background,
-    $mdc-theme-beta-surface
+  @include make-theme(
+    $theme-beta-primary,
+    $theme-beta-secondary,
+    $theme-beta-error,
+    $theme-beta-background,
+    $theme-beta-surface
   );
 }
 
 .theme-gamma {
-  @include common-theme-work(
-    $mdc-theme-gamma-primary,
-    $mdc-theme-gamma-secondary,
-    $mdc-theme-gamma-error,
-    $mdc-theme-gamma-background,
-    $mdc-theme-gamma-surface
+  @include make-theme(
+    $theme-gamma-primary,
+    $theme-gamma-secondary,
+    $theme-gamma-error,
+    $theme-gamma-background,
+    $theme-gamma-surface
   );
 }
 
