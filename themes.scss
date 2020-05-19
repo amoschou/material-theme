@@ -35,6 +35,7 @@ $mdc-theme-gamma-error: $mdc-theme-error;
 @use "@material/feature-targeting/mixins" as feature-targeting-mixins;
 @use "@material/form-field/mdc-form-field";
 @use "@material/icon-button";
+@use "@material/ripple/mixins" as ripple-mixins;
 @use "@material/theme/mixins" as theme-mixins;
 @use "@material/theme/functions" as theme-functions;
 @use "@material/theme/constants" as theme-constants;
@@ -46,79 +47,156 @@ $mdc-theme-gamma-error: $mdc-theme-error;
 @include icon-button.core-styles;
 @include checkbox.core-styles;
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-@mixin common-theme-styles($property-values) {
+@mixin common-theme-styles($property-values, $query: feature-targeting-functions.all()) {
+
+  $feat-color: feature-targeting-functions.create-target($query, color);
 
   $primary: map.get($property-values, "primary");
   $secondary: map.get($property-values, "secondary");
   $surface: map.get($property-values, "surface");
+  $on-primary: map.get($property-values, "on-primary");
   $on-secondary: map.get($property-values, "on-secondary");
   $on-surface: map.get($property-values, "on-surface");
 
-  // BUTTONS
-  .mdc-button--raised,
-  .mdc-button--unelevated {
-    // Relevant variables (colours) from @material/button/variables are:
-    //   $outline-color: rgba(ON-SURFACE, .12)
-    //   $disabled-container-color: rgba(ON-SURFACE, .12)
-    //   $disabled-ink-color: rgba(ON-SURFACE, .38)
-    @include button.filled-accessible($primary);
-//    filled_() does this:
-    // This includes: container-fill-color(PRIMARY) YES
-    //                ink-color(ON-PRIMARY) YES
-    //                disabled-container-fill-color($disabled-container-color)
-    //                disabled-ink-color($disabled-ink-color)
-    //
-    //
-    //
+  //////////////////////////
+  // Buttons
+  //////////////////////////
+
+  $button-outline-color:rgba($on-surface, .12);
+  $button-disabled-container-color:rgba($on-surface, .12);
+  $button-disabled-ink-color:rgba($on-surface, .38);
+
+  .mdc-button {
+    @include button.container-fill-color(transparent, $query);
+    @include button.ink-color($primary, $query);
+    @include button.icon-color($primary, $query);
+    @include button.disabled-container-fill-color(transparent, $query);
+    @include button.disabled-ink-color($button-disabled-ink-color, $query);
+    @include button.disabled-icon-color($button-disabled-ink-color, $query);
+    @include button.ripple-states($primary, $query: $query);
+    .mdc-button--raised,
+    .mdc-button--unelevated {
+      @include button.container-fill-color($primary, $query);
+      @include button.ink-color($on-primary, $query);
+      @include button.icon-color($on-primary, $query);
+      @include button.disabled-container-fill-color($button-disabled-container-color, $query);
+      @include button.disabled-ink-color($button-disabled-ink-color, $query);
+      @include button.disabled-icon-color($button-disabled-ink-color, $query);
+      @include button.ripple-states($on-primary, $query: $query);
+    }
+    .mdc-button--outlined {
+      @include button.outline-color($button-outline-color, $query);
+      @include button.disabled-outline-color($button-disabled-container-color, $query);
+    }
   }
 
-  // CARDS
-  //   @mixin fill-color($color): Managed by CSS variables --
-  //   @mixin outline($color, $thickness): Requires Sass
-  // OUTLINE COLOUR SHOULD BE A MIX OF 12% ON-SURFACE 88% SURFACE
+  //////////////////////////
+  // Cards
+  //////////////////////////
+
+  $card-action-icon-color: rgba($on-surface, theme-variables.text-emphasis(medium)) !default;
+  $card-outline-color: color.mix($on-surface, $surface, 12%) !default;
+
+  .mdc-card {
+    @include card.fill-color($surface, $query);
+  }
   .mdc-card--outlined {
-    $outline-color: color.mix($on-surface, $surface, 12%);
-    @include card.outline($outline-color);
+    @include card.outline($card-outline-color, $query: $query);
+  }
+  .mdc-card__action-icons {
+    @include feature-targeting-mixins.targets($feat-color) {
+      @include theme-mixins.prop(color, $card-action-icon-color);
+    }
+  }
+  .mdc-card__action--icon:not(:disabled) {
+    @include feature-targeting-mixins.targets($feat-color) {
+      @include theme-mixins.prop(color, $card-action-icon-color);
+    }
   }
 
-  .mdc-icon-button {
-  }
+  //////////////////////////
+  // Checkbox
+  //////////////////////////
+
+  $checkbox-baseline-theme-color: secondary;
+  $checkbox-mark-color: $on-secondary;
+  $checkbox-border-color: rgba($on-surface, .54);
+  $checkbox-disabled-color: rgba($on-surface, .38);
+
+  $checkbox-ripple-target: ".mdc-checkbox__ripple";
 
   .mdc-checkbox {
-    // Variables from @material/checkbox/variables
-    $baseline-theme-color: $secondary;
-    $mark-color: $on-secondary;
-    $border-color: rgba($on-surface, .54);
-    $disabled-color: rgba($on-surface, .38);
-
+    @include checkbox.focus-indicator-color($checkbox-baseline-theme-color, $query: $query);
     @include checkbox.container-colors(
-      $border-color,
-      transparent,
-      $baseline-theme-color,
-      $baseline-theme-color,
-      true
+      $unmarked-stroke-color: $checkbox-border-color,
+      $unmarked-fill-color: transparent,
+      $marked-stroke-color: $checkbox-baseline-theme-color,
+      $marked-fill-color: $checkbox-baseline-theme-color,
+      $generate-keyframes: true,
+      $query: $query
     );
-    @include checkbox.disabled-container-colors(
-      $disabled-color,
-      transparent,
-      transparent,
-      $disabled-color
-    );
-    @include checkbox.ink-color($mark-color);
-    @include checkbox.disabled-ink-color($mark-color);
-    // @include checkbox.focus-indicator-color(); Which value for this?
+    @include ripple-mixins.states($color: $on-surface, $query: $query, $ripple-target: $checkbox-ripple-target);
   }
+  @include checkbox.disabled-container-colors(
+    $unmarked-stroke-color: $checkbox-disabled-color,
+    $unmarked-fill-color: transparent,
+    $marked-stroke-color: transparent,
+    $marked-fill-color: $checkbox-disabled-color,
+    $query: $query
+  );
+  @include checkbox.ink-color($checkbox-mark-color, $query: $query);
+  @include checkbox.disabled-ink-color($checkbox-mark-color, $query: $query);
+
+  //////////////////////////
+  // Chips
+  //////////////////////////
+
+  $chips-fill-color-default: color.mix($on-surface, $surface, 12%);
+  $chips-ink-color-default: rgba($on-surface, .87);
+  $chips-icon-color: $on-surface;
+  $chips-icon-opacity: .54;
+  $chips-trailing-icon-hover-opacity: .62;
+  $chips-trailing-icon-focus-opacity: .87;
+
+  // SASS MIXINS ACCORDING TO README
+  // fill-color-accessible($color)
+  // fill-color($color)
+  // ink-color($color)
+  // selected-ink-color($color)
+  // outline($width, $style, $color)
+  // outline-color($color)
+  // leading-icon-color($color, $opacity)
+  // trailing-icon-color($color, $opacity, $hover-opacity, $focus-opacity)
+
+  // @use "@material/chips/mdc-chips";
+  //
+  // > @use "./trailingaction/mdc-chip-trailing-action";
+  // > > @use "./mixins";
+  // > > @include mixins.core-styles;
+  // > @use "./chip/mdc-chip";
+  // > > @use "../mixins";
+  // > > @include mixins.core-styles;
+  // > @use "./chip-set/mdc-chip-set";
+  // > > @use "../mixins";
+  // > > @include mixins.set-core-styles;
+
+
+
+
+
+
+
 };
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 // Modified from @material/theme/_mixins.scss
 @mixin themed-core-styles($property-values, $query: feature-targeting-functions.all()) {
@@ -156,10 +234,10 @@ $mdc-theme-gamma-error: $mdc-theme-error;
   }
 }
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 @mixin common-theme-work($primary, $secondary, $error: #800020, $background: #fff, $surface: #fff) {
   $on-primary: if(theme-functions.contrast-tone($primary) == "dark", #000, #fff);
@@ -198,18 +276,18 @@ $mdc-theme-gamma-error: $mdc-theme-error;
   @include common-theme-styles($property-values);
 }
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 @include theme-mixins.core-styles;
 @include common-theme-styles(theme-variables.$property-values);
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 .theme-alpha {
   @include common-theme-work(
@@ -241,7 +319,9 @@ $mdc-theme-gamma-error: $mdc-theme-error;
   );
 }
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
