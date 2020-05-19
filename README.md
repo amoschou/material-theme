@@ -42,7 +42,7 @@ But Sass restricts how `@use` is used, and it can not be wrapped multiple times 
 This file demonstrates themes in the following way:
 ```scss
 .theme-alpha {
-  @include common-theme-work(
+  @include make-theme(
     $primary: #f44336,
     $secondary: #1565c0,
     $error: #d500f9,
@@ -52,7 +52,7 @@ This file demonstrates themes in the following way:
 }
 
 .theme-beta {
-  @include common-theme-work(
+  @include make-theme(
     $primary: #3f51b5,
     $secondary: #00695c,
     $error: #00b0ff,
@@ -62,7 +62,7 @@ This file demonstrates themes in the following way:
 }
 
 .theme-gamma {
-  @include common-theme-work(
+  @include make-theme(
     $primary: #009688,
     $secondary: #f9a825,
     $error: #76ff03,
